@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "183782652",
+    "project_id": "chatapp-effb6",
+    "storage_bucket": "chatapp-effb6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:183782652:android:e41eb0b646280737afdb79",
+        "android_client_info": {
+          "package_name": "com.me.chatie"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "183782652-5i3jmjqiuacf5272rkk2gjl35aqe7qjc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.me.chatie",
+            "certificate_hash": "593932efb0fd4604dda60ff60a2f571cfec7f682"
+          }
+        },
+        {
+          "client_id": "183782652-c6fp0u7gtvsatfrrlfc1qbrvsbs0r55m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCiL1B0958cz4Dzmzb9PwT6acGzqKgU4lM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "183782652-c6fp0u7gtvsatfrrlfc1qbrvsbs0r55m.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "183782652-2pg9utp631id3vr61vv72sonvsck9ok1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.me.chatie"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
