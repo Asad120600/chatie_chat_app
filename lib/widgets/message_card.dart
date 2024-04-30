@@ -1,7 +1,12 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatie/helper/my_date_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:typed_data';
+import 'package:http/http.dart' as http;
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 
 import '../api/apis.dart';
 import '../helper/dialogs.dart';
@@ -207,15 +212,14 @@ class _MessageCardState extends State<MessageCard> {
                     ),
                     name: 'Copy Text',
                     onTap: () async {
-                      await Clipboard.setData(ClipboardData(text: widget.message.msg))
+                      await Clipboard.setData(
+                              ClipboardData(text: widget.message.msg))
                           .then((value) {
-                            // for hiding bottom sheet
-                            Navigator.pop(context);
+                        // for hiding bottom sheet
+                        Navigator.pop(context);
 
-                            Dialogs.showSnackbar(context,'Text Copied');
-                          });
-
-
+                        Dialogs.showSnackbar(context, 'Text Copied');
+                      });
                     })
                 : _OptionItem(
                     icon: const Icon(
@@ -224,7 +228,35 @@ class _MessageCardState extends State<MessageCard> {
                       size: 26,
                     ),
                     name: 'Save Image:',
-                    onTap: () {}),
+                onTap: () async {
+                  log('Image Url:${widget.message.msg}');
+                  try {
+                    // Download the image from the URL
+                    http.Response response = await http.get(Uri.parse(widget.message.msg));
+                    if (response.statusCode == 200) {
+                      // Convert the image bytes to Uint8List
+                      Uint8List bytes = response.bodyBytes;
+
+                      // Save the image
+                      var result = await ImageGallerySaver.saveImage(bytes, name: "My Chat");
+
+                      // Check if saving was successful
+                      bool success = result['isSuccess'];
+
+                      if (success) {
+                        Navigator.pop(context);
+                        Dialogs.showSnackbar(context, 'Image Successfully saved!');
+                      } else {
+                        log('Failed to save image: ${result['errorMessage']}');
+                      }
+                    } else {
+                      log('Failed to load image: ${response.statusCode}');
+                    }
+                  } catch (e) {
+                    log('Error while saving image: $e');
+                  }
+                }
+            ),
             if (isMe)
               Divider(
                 color: Colors.black12,
@@ -259,14 +291,12 @@ class _MessageCardState extends State<MessageCard> {
                   ),
                   name: 'Delete Message',
                   onTap: () async {
-                    
                     await APIs.deleteMessage(widget.message).then((value) {
-
                       // for hiding bottom sheet
                       Navigator.pop(context);
 
                       // for showing snack bar
-                      Dialogs.showSnackbar(context,'Deleted Successfully');
+                      Dialogs.showSnackbar(context, 'Deleted Successfully');
                     });
                   }),
             Divider(
@@ -282,9 +312,7 @@ class _MessageCardState extends State<MessageCard> {
                   size: 26,
                 ),
                 name:
-                    'Send At:${MyDateUtil
-                        .getMessageTime(context: context,
-                        time: widget.message.sent)}',
+                    'Send At:${MyDateUtil.getMessageTime(context: context, time: widget.message.sent)}',
                 onTap: () {}),
             Divider(
               color: Colors.black12,
@@ -301,9 +329,7 @@ class _MessageCardState extends State<MessageCard> {
                 ),
                 name: widget.message.read.isEmpty
                     ? 'Read At: Not seen Yet! '
-                    : 'Read At:${MyDateUtil
-                    .getMessageTime(context: context,
-                    time: widget.message.read)}',
+                    : 'Read At:${MyDateUtil.getMessageTime(context: context, time: widget.message.read)}',
                 onTap: () {}),
           ],
         );
