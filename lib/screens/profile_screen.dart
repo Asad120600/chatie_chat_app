@@ -27,7 +27,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     mq = MediaQuery.sizeOf(context);
-
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -285,4 +284,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       },
     );
   }
+
+
 }

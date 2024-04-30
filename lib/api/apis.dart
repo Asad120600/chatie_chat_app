@@ -120,14 +120,6 @@ class APIs {
     fMessaging.getToken().then((t) => {
           if (t != null) {me.pushToken = t, log('Push Token: $t')}
         });
-    // FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    //   log('Got a message whilst in the foreground!');
-    //   log('Message data: ${message.data}');
-    //
-    //   if (message.notification != null) {
-    //     log('Message also contained a notification: ${message.notification}');
-    //   }
-    // });
   }
 
   // for checking if user exists or not
@@ -200,7 +192,6 @@ class APIs {
     final time = DateTime.now().millisecondsSinceEpoch.toString();
 
     // message to snd
-
     final Message message = Message(
         toId: chatUser.id,
         msg: msg,
@@ -250,5 +241,29 @@ class APIs {
     // updating image in the firestore database
     final imageUrl = await ref.getDownloadURL();
     await sendMessage(chatUser, imageUrl, Type.image);
+  }
+
+  //delete message
+  static Future<void> deleteMessage(Message message) async {
+    await firestore
+        .collection('chats/${getConversationID(message.toId)}/messages/')
+        .doc(message.sent)
+        .delete();
+
+    if (message.type == Type.image) {
+      await storage.refFromURL(message.msg).delete();
+    }
+  }
+
+
+
+
+
+  //update message
+  static Future<void> updateMessage(Message message, String updatedMsg) async {
+    await firestore
+        .collection('chats/${getConversationID(message.toId)}/messages/')
+        .doc(message.sent)
+        .update({'msg': updatedMsg});
   }
 }
