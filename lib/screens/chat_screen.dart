@@ -321,8 +321,16 @@ class _ChatScreenState extends State<ChatScreen> {
           MaterialButton(
             onPressed: () {
               if (_textController.text.isNotEmpty) {
-                APIs.sendMessage(widget.user, _textController.text, Type.text);
-                _textController.text = '';
+                if(_list.isEmpty){
+                  APIs.sendFirstMessage(
+                      widget.user, _textController.text, Type.text);
+                }
+                else {
+                  APIs.sendMessage(
+                      widget.user, _textController.text, Type.text);
+                }
+                  _textController.text = '';
+
               }
             },
             shape: const CircleBorder(),

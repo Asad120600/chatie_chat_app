@@ -1,13 +1,10 @@
 import 'dart:developer';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatie/helper/my_date_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
-
 import '../api/apis.dart';
 import '../helper/dialogs.dart';
 import '../main.dart';
@@ -273,7 +270,19 @@ class _MessageCardState extends State<MessageCard> {
                     size: 26,
                   ),
                   name: 'Edit:',
-                  onTap: () {}),
+                  onTap: () {
+
+                    // for hiding bottom sheet
+                    Navigator.pop(context);
+
+                    _showMessageUpdateDialog();
+
+
+
+
+
+
+                  }),
             if (widget.message.type == Type.text && isMe)
               Divider(
                 color: Colors.black12,
@@ -320,7 +329,6 @@ class _MessageCardState extends State<MessageCard> {
               indent: mq.width * .04,
             ),
             // read Time
-
             _OptionItem(
                 icon: const Icon(
                   Icons.remove_red_eye,
@@ -336,7 +344,75 @@ class _MessageCardState extends State<MessageCard> {
       },
     );
   }
+
+  // message update dialog
+
+//dialog for updating message content
+  void _showMessageUpdateDialog() {
+    String updatedMsg = widget.message.msg;
+
+    showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          contentPadding: const EdgeInsets.only(
+              left: 24, right: 24, top: 20, bottom: 10),
+
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20)),
+
+          //title
+          title: const Row(
+            children: [
+              Icon(
+                Icons.message,
+                color: Colors.blue,
+                size: 28,
+              ),
+              Text(' Update Message')
+            ],
+          ),
+
+          //content
+          content: TextFormField(
+            initialValue: updatedMsg,
+            maxLines: null,
+            onChanged: (value) => updatedMsg = value,
+            decoration: InputDecoration(
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15))),
+          ),
+
+          //actions
+          actions: [
+            //cancel button
+            MaterialButton(
+                onPressed: () {
+                  //hide alert dialog
+                  Navigator.pop(context);
+                },
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.blue, fontSize: 16),
+                )),
+
+            //update button
+            MaterialButton(
+                onPressed: () {
+                  //hide alert dialog
+                  Navigator.pop(context);
+                  APIs.updateMessage(widget.message, updatedMsg);
+                },
+                child: const Text(
+                  'Update',
+                  style: TextStyle(color: Colors.blue, fontSize: 16),
+                ))
+          ],
+        ));
+  }
+        
+
 }
+
 
 class _OptionItem extends StatelessWidget {
   final Icon icon;
@@ -369,3 +445,7 @@ class _OptionItem extends StatelessWidget {
     );
   }
 }
+
+
+
+

@@ -29,6 +29,42 @@ class APIs {
     return (await firestore.collection('users').doc(user.uid).get()).exists;
   }
 
+  // for adding an chat user for our conversation
+  static Future<bool> addChatUser(String email) async {
+    final data = await firestore
+        .collection('users')
+        .where('email', isEqualTo: email)
+        .get();
+
+    log('data: ${data.docs}');
+
+    if (data.docs.isNotEmpty && data.docs.first.id != user.uid) {
+      //user exists
+      log('user exists: ${data.docs.first.data()}');
+      firestore
+          .collection('users')
+          .doc(user.uid)
+          .collection('my_users')
+          .doc(data.docs.first.id)
+          .set({});
+
+      return true;
+    } else {
+      //user doesn't exists
+      return false;
+    }
+  }
+
+
+  // for getting id of known persons from firestore
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getMyUsersId() {
+    return firestore
+        .collection('users')
+    .doc(user.uid)
+    .collection('my_users')
+        .snapshots();
+  }
+
   // for storing self info
   static late ChatUser me;
 
@@ -53,12 +89,34 @@ class APIs {
         .set(chatUser.toJson());
   }
 
-  // for getting all users
-  static Stream<QuerySnapshot<Map<String, dynamic>>> getAllUsers() {
+
+
+
+  // for getting all users from database
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getAllUsers(List<String> userIds) {
+    log('\nUser Ids: $userIds');
+
+    if (userIds.isEmpty) {
+      // If userIds list is empty, return an empty stream
+      return Stream.empty();
+    }
+
     return firestore
         .collection('users')
-        .where('id', isNotEqualTo: user.uid)
+        .where('id', whereIn: userIds)
         .snapshots();
+  }
+
+
+  // for adding an user to my user when first message is send
+  static Future<void> sendFirstMessage(
+      ChatUser chatUser, String msg, Type type) async {
+    await firestore
+        .collection('users')
+        .doc(chatUser.id)
+        .collection('my_users')
+        .doc(user.uid)
+        .set({}).then((value) => sendMessage(chatUser, msg, type));
   }
 
   // for getting specific user info
@@ -79,6 +137,8 @@ class APIs {
       'push_token': me.pushToken
     });
   }
+
+
 
 // for updating user info
   static Future<void> updateUserInfo() async {
