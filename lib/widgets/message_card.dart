@@ -20,8 +20,13 @@ class MessageCard extends StatefulWidget {
 }
 
 class _MessageCardState extends State<MessageCard> {
+  late MediaQueryData mq;
+
   @override
   Widget build(BuildContext context) {
+    mq = MediaQuery.of(context);
+
+
     bool isMe = APIs.user.uid == widget.message.fromId;
 
     return InkWell(
@@ -45,10 +50,10 @@ class _MessageCardState extends State<MessageCard> {
         Flexible(
           child: Container(
             padding: EdgeInsets.all(widget.message.type == Type.image
-                ? mq.width * .03
-                : mq.width * .04),
+                ? mq.size.width * .03
+                : mq.size.width * .04),
             margin: EdgeInsets.symmetric(
-                horizontal: mq.width * .04, vertical: mq.height * .01),
+                horizontal: mq.size.width * .04, vertical: mq.size.height * .01),
             decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 221, 245, 255),
                 border: Border.all(color: Colors.lightBlue),
@@ -86,7 +91,7 @@ class _MessageCardState extends State<MessageCard> {
 
         // for showing time
         Padding(
-          padding: EdgeInsets.only(right: mq.width * .04),
+          padding: EdgeInsets.only(right: mq.size.width * .04),
           child: Text(
             MyDateUtil.getFormattedTime(
                 context: context, time: widget.message.sent),
@@ -107,7 +112,7 @@ class _MessageCardState extends State<MessageCard> {
           children: [
             // add space
             SizedBox(
-              width: mq.width * .04,
+              width: mq.size.width * .04,
             ),
 
             // double tick
@@ -135,10 +140,10 @@ class _MessageCardState extends State<MessageCard> {
         Flexible(
           child: Container(
             padding: EdgeInsets.all(widget.message.type == Type.image
-                ? mq.width * .03
-                : mq.width * .04),
+                ? mq.size.width * .03
+                : mq.size.width * .04),
             margin: EdgeInsets.symmetric(
-                horizontal: mq.width * .04, vertical: mq.height * .01),
+                horizontal: mq.size.width * .04, vertical: mq.size.height * .01),
             decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 218, 255, 176),
                 border: Border.all(color: Colors.lightGreen),
@@ -193,7 +198,7 @@ class _MessageCardState extends State<MessageCard> {
           children: [
             Container(
               margin: EdgeInsets.symmetric(
-                  vertical: mq.height * .01, horizontal: mq.width * .4),
+                  vertical: mq.size.height * .01, horizontal: mq.size.width * .4),
               height: 4,
               decoration: BoxDecoration(
                   color: Colors.grey, borderRadius: BorderRadius.circular(8)),
@@ -257,8 +262,8 @@ class _MessageCardState extends State<MessageCard> {
             if (isMe)
               Divider(
                 color: Colors.black12,
-                endIndent: mq.width * .04,
-                indent: mq.width * .04,
+                endIndent: mq.size.width * .04,
+                indent: mq.size.width * .04,
               ),
 
             // edit
@@ -286,8 +291,8 @@ class _MessageCardState extends State<MessageCard> {
             if (widget.message.type == Type.text && isMe)
               Divider(
                 color: Colors.black12,
-                endIndent: mq.width * .04,
-                indent: mq.width * .04,
+                endIndent: mq.size.width * .04,
+                indent: mq.size.width * .04,
               ),
 
             // delete
@@ -310,8 +315,8 @@ class _MessageCardState extends State<MessageCard> {
                   }),
             Divider(
               color: Colors.black12,
-              endIndent: mq.width * .04,
-              indent: mq.width * .04,
+              endIndent: mq.size.width * .04,
+              indent: mq.size.width * .04,
             ),
             // sent Time
             _OptionItem(
@@ -325,8 +330,8 @@ class _MessageCardState extends State<MessageCard> {
                 onTap: () {}),
             Divider(
               color: Colors.black12,
-              endIndent: mq.width * .04,
-              indent: mq.width * .04,
+              endIndent: mq.size.width * .04,
+              indent: mq.size.width * .04,
             ),
             // read Time
             _OptionItem(

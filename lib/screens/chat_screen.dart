@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../api/apis.dart';
-import '../main.dart';
 import '../models/message.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -24,6 +23,8 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  late MediaQueryData mq;
+
   // for storing all messages
   List<Message> _list = [];
 
@@ -36,6 +37,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    mq = MediaQuery.of(context);
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: SafeArea(
@@ -70,31 +73,37 @@ class _ChatScreenState extends State<ChatScreen> {
                           return const SizedBox();
                         case ConnectionState.active:
                         case ConnectionState.done:
-                          if (snapshot.hasError) {
-                            return Text('Error: ${snapshot.error}');
-                          }
-
                           final data = snapshot.data?.docs;
 
                           _list = data!
                               .map((e) => Message.fromJson(e.data()))
                               .toList();
 
-                          return ListView.builder(
-                            reverse: true,
-                            itemCount: _list.length,
-                            padding: EdgeInsets.only(top: mq.height * .01),
-                            physics: const BouncingScrollPhysics(),
-                            itemBuilder: (context, index) {
-                              return MessageCard(
-                                message: _list[index],
-                              );
-                            },
-                          );
+                          if (_list.isNotEmpty) {
+                            return ListView.builder(
+                              reverse: true,
+                              itemCount: _list.length,
+                              padding: EdgeInsets.only(
+                                top: mq.size.height * .01,
+                              ),
+                              physics: const BouncingScrollPhysics(),
+                              itemBuilder: (context, index) {
+                                return MessageCard(
+                                  message: _list[index],
+                                );
+                              },
+                            );
+                          } else {
+                            return const Center(
+                              child: Text(
+                                'Say Hi ! 👋 ',
+                                style: TextStyle(fontSize: 24),
+                              ),
+                            );
+                          }
                       }
                     },
                   ),
-
                 ),
                 if (_isUploading)
                   const Align(
@@ -111,9 +120,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   EmojiPicker(
                     textEditingController: _textController,
                     config: Config(
-                      height: mq.height * .35,
-                      bottomActionBarConfig: const BottomActionBarConfig(
-                          showSearchViewButton: false),
+                      height: mq.size.height * .35,
+                      bottomActionBarConfig:
+                      const BottomActionBarConfig(showSearchViewButton: false),
                       checkPlatformCompatibility: true,
                       emojiViewConfig: EmojiViewConfig(
                         emojiSizeMax: 32 * (Platform.isIOS ? 1.30 : 1.0),
@@ -146,8 +155,7 @@ class _ChatScreenState extends State<ChatScreen> {
               snapshot.connectionState == ConnectionState.none) {
             // Handle case where snapshot has not yet received data
             return const Center(
-                child:
-                CircularProgressIndicator(
+                child: CircularProgressIndicator(
                   strokeWidth: 1,
                   color: Colors.black12,
                   strokeAlign: BorderSide.strokeAlignCenter,
@@ -179,10 +187,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
               ClipRRect(
-                borderRadius: BorderRadius.circular(mq.height * .03),
+                borderRadius: BorderRadius.circular(mq.size.height * .03),
                 child: CachedNetworkImage(
-                  width: mq.height * .05,
-                  height: mq.height * .05,
+                  width: mq.size.height * .05,
+                  height: mq.size.height * .05,
                   fit: BoxFit.cover,
                   imageUrl: list[0].image,
                   errorWidget: (context, url, error) =>
@@ -224,7 +232,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _chatInput() {
     return Padding(
       padding: EdgeInsets.symmetric(
-          vertical: mq.height * .01, horizontal: mq.height * .02),
+          vertical: mq.size.height * .01, horizontal: mq.size.height * .02),
       child: Row(
         children: [
           Expanded(
@@ -246,18 +254,19 @@ class _ChatScreenState extends State<ChatScreen> {
                         size: 26,
                       )),
                   Expanded(
-                      child: TextField(
-                        controller: _textController,
-                        keyboardType: TextInputType.multiline,
-                        maxLines: null,
-                        onTap: () {
-                          if (_showEmoji) setState(() => _showEmoji = !_showEmoji);
-                        },
-                        decoration: const InputDecoration(
-                            hintText: ' Type Something ..... ',
-                            border: InputBorder.none,
-                            hintStyle: TextStyle(color: Colors.blueAccent)),
-                      )),
+                    child: TextField(
+                      controller: _textController,
+                      keyboardType: TextInputType.multiline,
+                      maxLines: null,
+                      onTap: () {
+                        if (_showEmoji) setState(() => _showEmoji = !_showEmoji);
+                      },
+                      decoration: const InputDecoration(
+                          hintText: ' Type Something ..... ',
+                          border: InputBorder.none,
+                          hintStyle: TextStyle(color: Colors.blueAccent)),
+                    ),
+                  ),
 
                   // pick image from gallery
                   IconButton(
@@ -306,7 +315,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         size: 26,
                       )),
                   SizedBox(
-                    width: mq.width * .02,
+                    width: mq.size.width * .02,
                   )
                 ],
               ),
@@ -315,8 +324,13 @@ class _ChatScreenState extends State<ChatScreen> {
           MaterialButton(
             onPressed: () {
               if (_textController.text.isNotEmpty) {
-                APIs.sendFirstMessage(
-                    widget.user, _textController.text, Type.text);
+                if (_list.isEmpty) {
+                  APIs.sendFirstMessage(
+                      widget.user, _textController.text, Type.text);
+                } else {
+                  APIs.sendMessage(
+                      widget.user, _textController.text, Type.text);
+                }
                 _textController.text = '';
               }
             },

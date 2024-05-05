@@ -1,18 +1,17 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:chatie/helper/my_date_util.dart';
-import 'package:chatie/models/chat_user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../api/apis.dart';
+import '../helper/my_date_util.dart';
+import '../models/chat_user.dart';
 import '../models/message.dart';
 import '../screens/chat_screen.dart';
-import '../widgets/dialogs/profile_dialog.dart'; // Update the import path
+import 'dialogs/profile_dialog.dart';
 
 class ChatUserCard extends StatefulWidget {
   final ChatUser user;
-  final MediaQueryData mq; // Add mq as a parameter
+  final MediaQueryData mq;
 
   const ChatUserCard({super.key, required this.user, required this.mq});
 
@@ -25,6 +24,7 @@ class _ChatUserCardState extends State<ChatUserCard> {
 
   @override
   Widget build(BuildContext context) {
+    final mq = MediaQuery.of(context); // Get the MediaQuery here
     return Card(
       margin: EdgeInsets.symmetric(horizontal: widget.mq.size.width * .04, vertical: 4),
       color: Colors.white,
@@ -49,21 +49,12 @@ class _ChatUserCardState extends State<ChatUserCard> {
 
             if (list.isNotEmpty) {
               _message = list[0];
-            } else {
-              // If no message is exchanged yet, display a default message
-              _message = Message(
-                fromId: '',
-                toId: '',
-                msg: 'Start your conversation',
-                sent: DateTime.now().toString(), // You can modify the timestamp as needed
-                type: Type.text, read: '',
-              );
             }
 
             return ListTile(
               leading: InkWell(
-                onTap: (){
-                  showDialog(context: context, builder: (_)=> ProfileDialog(user: widget.user,));
+                onTap: () {
+                  showDialog(context: context, builder: (_) => ProfileDialog(user: widget.user));
                 },
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(widget.mq.size.height * .03),
@@ -72,17 +63,28 @@ class _ChatUserCardState extends State<ChatUserCard> {
                     height: widget.mq.size.height * .055,
                     fit: BoxFit.cover,
                     imageUrl: widget.user.image,
-                    errorWidget: (context, url, error) => const CircleAvatar(child: Icon(CupertinoIcons.person)),
+                    errorWidget: (context, url, error) => const CircleAvatar(child: Icon(Icons.person)),
                   ),
                 ),
               ),
               title: Text(widget.user.name),
               subtitle: Text(
-                _message!.msg,
+                _message != null ? (_message!.type == Type.image ? 'image' : _message!.msg) : widget.user.about,
                 maxLines: 1,
               ),
-              trailing: Text(
-                _message!.type == Type.image ? 'image' : MyDateUtil.getLastMessageTime(context: context, time: _message!.sent),
+              trailing: _message == null
+                  ? null
+                  : (_message!.read.isEmpty && _message!.fromId != APIs.user.uid)
+                  ? Container(
+                width: 15,
+                height: 15,
+                decoration: BoxDecoration(
+                  color: Colors.greenAccent.shade400,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              )
+                  : Text(
+                MyDateUtil.getLastMessageTime(context: context, time: _message!.sent),
                 style: const TextStyle(color: Colors.black54),
               ),
             );
