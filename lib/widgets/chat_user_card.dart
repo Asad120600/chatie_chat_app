@@ -6,28 +6,27 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../api/apis.dart';
-import '../main.dart';
 import '../models/message.dart';
 import '../screens/chat_screen.dart';
-import 'dialogs/profile_dialog.dart';
+import '../widgets/dialogs/profile_dialog.dart'; // Update the import path
 
 class ChatUserCard extends StatefulWidget {
   final ChatUser user;
+  final MediaQueryData mq; // Add mq as a parameter
 
-  const ChatUserCard({super.key, required this.user});
+  const ChatUserCard({super.key, required this.user, required this.mq});
 
   @override
   State<ChatUserCard> createState() => _ChatUserCardState();
 }
 
 class _ChatUserCardState extends State<ChatUserCard> {
-  // Last Message
   Message? _message;
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.symmetric(horizontal: mq.width * .04, vertical: 4),
+      margin: EdgeInsets.symmetric(horizontal: widget.mq.size.width * .04, vertical: 4),
       color: Colors.white,
       elevation: 0.5,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
@@ -53,33 +52,26 @@ class _ChatUserCardState extends State<ChatUserCard> {
             }
 
             return ListTile(
-              //  user profile pic
               leading: InkWell(
                 onTap: (){
                   showDialog(context: context, builder: (_)=> ProfileDialog(user: widget.user,));
                 },
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(mq.height * .03),
+                  borderRadius: BorderRadius.circular(widget.mq.size.height * .03),
                   child: CachedNetworkImage(
-                    width: mq.height * .055,
-                    height: mq.height * .055,
+                    width: widget.mq.size.height * .055,
+                    height: widget.mq.size.height * .055,
                     fit: BoxFit.cover,
                     imageUrl: widget.user.image,
                     errorWidget: (context, url, error) => const CircleAvatar(child: Icon(CupertinoIcons.person)),
                   ),
                 ),
               ),
-
-              // User name
               title: Text(widget.user.name),
-
-              // Last Message
               subtitle: Text(
                 _message != null ? (_message!.type == Type.image ? 'image' : _message!.msg) : widget.user.about,
                 maxLines: 1,
               ),
-
-              // Last Message Time
               trailing: _message == null
                   ? null
                   : (_message!.read.isEmpty && _message!.fromId != APIs.user.uid)

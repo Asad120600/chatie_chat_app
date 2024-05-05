@@ -9,9 +9,11 @@ import 'package:flutter_notification_channel/notification_importance.dart';
 import 'firebase_options.dart';
 
 // global object for accessing screen size
-late Size mq;
+ late Size mq;
+
 
 void main() {
+
   WidgetsFlutterBinding.ensureInitialized();
 
   // for entering full screen
@@ -28,8 +30,10 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+
   @override
   Widget build(BuildContext context) {
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Chatie',

@@ -1,14 +1,11 @@
-
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:chatie/helper/dialogs.dart';
 import 'package:chatie/screens/home_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_button/sign_in_button.dart';
-
 import '../../api/apis.dart';
 import '../../main.dart';
 
@@ -41,29 +38,28 @@ class _LoginScreenState extends State<LoginScreen> {
       // for hiding progress bar
 
       Navigator.pop(context);
-      if(user !=null){
+      if (user != null) {
         log('\nuser: ${user.user}.toString()');
         log('\nuserAdditionalInfo: ${user.additionalUserInfo}.toString()');
-        if((await APIs.userExists())){
+        if ((await APIs.userExists())) {
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                 builder: (_) => const HomeScreen(),
               ));
-
-        }else{
+        } else {
           await APIs.createUser().then((value) {
             Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
                   builder: (_) => const HomeScreen(),
                 ));
-
           });
-          }
         }
+      }
     });
   }
+
   Future<UserCredential?> _signInWithGoogle() async {
     try {
       await InternetAddress.lookup('google.com');
@@ -73,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       // Obtain the auth details from the request
       final GoogleSignInAuthentication? googleAuth =
-      await googleUser?.authentication;
+          await googleUser?.authentication;
 
       // Create a new credential
       final credential = GoogleAuthProvider.credential(
@@ -85,7 +81,8 @@ class _LoginScreenState extends State<LoginScreen> {
       return await APIs.auth.signInWithCredential(credential);
     } catch (e) {
       log("\n_signInWithGoogle: $e.toString()");
-      Dialogs.showSnackbar(context, 'Something Went Wrong Check Internet Please!');
+      Dialogs.showSnackbar(
+          context, 'Something Went Wrong Check Internet Please!');
     }
     return null;
   }
