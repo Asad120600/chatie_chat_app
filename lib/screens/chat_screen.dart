@@ -70,44 +70,38 @@ class _ChatScreenState extends State<ChatScreen> {
                           return const SizedBox();
                         case ConnectionState.active:
                         case ConnectionState.done:
+                          if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          }
+
                           final data = snapshot.data?.docs;
 
                           _list = data!
                               .map((e) => Message.fromJson(e.data()))
                               .toList();
 
-                          if (_list.isNotEmpty) {
-                            return ListView.builder(
-                              reverse: true,
-                              itemCount: _list.length,
-                              padding: EdgeInsets.only(
-                                top: mq.height * .01,
-                              ),
-                              physics: const BouncingScrollPhysics(),
-                              itemBuilder: (context, index) {
-                                return MessageCard(
-                                  message: _list[index],
-                                );
-                              },
-                            );
-                          } else {
-                            return const Center(
-                              child: Text(
-                                'Say Hi ! 👋 ',
-                                style: TextStyle(fontSize: 24),
-                              ),
-                            );
-                          }
+                          return ListView.builder(
+                            reverse: true,
+                            itemCount: _list.length,
+                            padding: EdgeInsets.only(top: mq.height * .01),
+                            physics: const BouncingScrollPhysics(),
+                            itemBuilder: (context, index) {
+                              return MessageCard(
+                                message: _list[index],
+                              );
+                            },
+                          );
                       }
                     },
                   ),
+
                 ),
                 if (_isUploading)
                   const Align(
                       alignment: Alignment.centerRight,
                       child: Padding(
                         padding:
-                            EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                        EdgeInsets.symmetric(vertical: 8, horizontal: 20),
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
                         ),
@@ -142,8 +136,8 @@ class _ChatScreenState extends State<ChatScreen> {
             context,
             MaterialPageRoute(
                 builder: (_) => ViewProfileScreen(
-                      user: widget.user,
-                    )));
+                  user: widget.user,
+                )));
       },
       child: StreamBuilder(
         stream: APIs.getUserInfo(widget.user),
@@ -153,11 +147,11 @@ class _ChatScreenState extends State<ChatScreen> {
             // Handle case where snapshot has not yet received data
             return const Center(
                 child:
-                    CircularProgressIndicator(
-                    strokeWidth: 1,
-                    color: Colors.black12,
-                    strokeAlign: BorderSide.strokeAlignCenter,
-                    )); // Or any other loading indicator
+                CircularProgressIndicator(
+                  strokeWidth: 1,
+                  color: Colors.black12,
+                  strokeAlign: BorderSide.strokeAlignCenter,
+                )); // Or any other loading indicator
           }
 
           if (!snapshot.hasData) {
@@ -192,7 +186,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   fit: BoxFit.cover,
                   imageUrl: list[0].image,
                   errorWidget: (context, url, error) =>
-                      const CircleAvatar(child: Icon(CupertinoIcons.person)),
+                  const CircleAvatar(child: Icon(CupertinoIcons.person)),
                 ),
               ),
               const SizedBox(width: 10),
@@ -212,7 +206,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     list[0].isOnline
                         ? 'Online'
                         : MyDateUtil.getLastActiveTime(
-                            context: context, lastActive: list[0].lastActive),
+                        context: context, lastActive: list[0].lastActive),
                     style: const TextStyle(
                       fontSize: 16,
                       color: Colors.black87,
@@ -253,17 +247,17 @@ class _ChatScreenState extends State<ChatScreen> {
                       )),
                   Expanded(
                       child: TextField(
-                    controller: _textController,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    onTap: () {
-                      if (_showEmoji) setState(() => _showEmoji = !_showEmoji);
-                    },
-                    decoration: const InputDecoration(
-                        hintText: ' Type Something ..... ',
-                        border: InputBorder.none,
-                        hintStyle: TextStyle(color: Colors.blueAccent)),
-                  )),
+                        controller: _textController,
+                        keyboardType: TextInputType.multiline,
+                        maxLines: null,
+                        onTap: () {
+                          if (_showEmoji) setState(() => _showEmoji = !_showEmoji);
+                        },
+                        decoration: const InputDecoration(
+                            hintText: ' Type Something ..... ',
+                            border: InputBorder.none,
+                            hintStyle: TextStyle(color: Colors.blueAccent)),
+                      )),
 
                   // pick image from gallery
                   IconButton(
@@ -272,7 +266,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
                         // picking multiple  images
                         final List<XFile> images =
-                            await picker.pickMultiImage(imageQuality: 70);
+                        await picker.pickMultiImage(imageQuality: 70);
                         // uploading and sending one by one
 
                         for (var i in images) {
@@ -321,22 +315,15 @@ class _ChatScreenState extends State<ChatScreen> {
           MaterialButton(
             onPressed: () {
               if (_textController.text.isNotEmpty) {
-                if(_list.isEmpty){
-                  APIs.sendFirstMessage(
-                      widget.user, _textController.text, Type.text);
-                }
-                else {
-                  APIs.sendMessage(
-                      widget.user, _textController.text, Type.text);
-                }
-                  _textController.text = '';
-
+                APIs.sendFirstMessage(
+                    widget.user, _textController.text, Type.text);
+                _textController.text = '';
               }
             },
             shape: const CircleBorder(),
             minWidth: 0,
             padding:
-                const EdgeInsets.only(top: 10, bottom: 10, left: 10, right: 5),
+            const EdgeInsets.only(top: 10, bottom: 10, left: 10, right: 5),
             color: Colors.blueAccent,
             child: const Icon(
               Icons.send_rounded,
